@@ -93,9 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void _startAddNewTransaction(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
     showMaterialModalBottomSheet(
-      backgroundColor: Colors.white,
-      // expand: MediaQuery.of(context).orientation == Orientation.landscape
-      //     ? false
       //     : false,
       context: context,
       builder: (_) {
