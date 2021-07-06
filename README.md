@@ -1,16 +1,3 @@
-# flutter_complete_guide
+# Expense Forecast App
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This is an app that calculates your future expenses of up to 7 days. This app is inspired by a fellow Flutter developer named Maximilian from Academind. He has a course on Flutter which covers everything from the basics to advanced topics. And this app is inspired by one of the projects in that course called Personal Expenses and it basically calculates Expenses prior to the day you use the App. So my app is basically the reverse. It also looks very similar so a little disclaimer from me that this project is inspired from Mr. Maximilian and I thank him for that.
