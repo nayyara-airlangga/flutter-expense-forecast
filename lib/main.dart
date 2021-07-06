@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'widgets/new_transaction.dart';
 import 'widgets/transaction_list.dart';
@@ -90,7 +91,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _startAddNewTransaction(BuildContext context) {
-    showModalBottomSheet(
+    Orientation orientation = MediaQuery.of(context).orientation;
+    showMaterialModalBottomSheet(
+      backgroundColor: Colors.white,
+      // expand: MediaQuery.of(context).orientation == Orientation.landscape
+      //     ? false
+      //     : false,
       context: context,
       builder: (_) {
         return NewTransaction(
