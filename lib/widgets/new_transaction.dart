@@ -10,18 +10,45 @@ class NewTransaction extends StatefulWidget {
   NewTransaction({
     Key key,
     this.addTransaction,
-  }) : super(key: key);
+  }) : super(key: key) {
+    print('Constructor');
+  }
 
   final Function addTransaction;
 
   @override
-  _NewTransactionState createState() => _NewTransactionState();
+  _NewTransactionState createState() {
+    print('Create state');
+    return _NewTransactionState();
+  }
 }
 
 class _NewTransactionState extends State<NewTransaction> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   DateTime _selectedDate;
+
+  _NewTransactionState() {
+    print('New Transaction State');
+  }
+
+  @override
+  void initState() {
+    print('init State');
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(NewTransaction oldWidget) {
+    print('did update widget');
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    print('dispose');
+    super.dispose();
+  }
 
   void _showDatePicker() {
     showDatePicker(

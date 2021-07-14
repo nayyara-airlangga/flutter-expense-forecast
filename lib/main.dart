@@ -11,9 +11,8 @@ import 'widgets/chart.dart';
 import 'models/transaction.dart';
 
 void main() {
-  if (Platform.isIOS) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
-  }
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays([]);
   runApp(MyApp());
 }
 
@@ -60,7 +59,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final List<Transaction> _userTransactions = [];
 
   List<Transaction> get _recentTransactions {
@@ -75,10 +74,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool _showChart = false;
 
-  void _addNewTransactions(
-      {String transactionTitle,
-      double transactionAmount,
-      DateTime selectedDate}) {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print(state);
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _addNewTransactions({
+    String transactionTitle,
+    double transactionAmount,
+    DateTime selectedDate,
+  }) {
     final newTransaction = Transaction(
       id: DateTime.now().toString(),
       amount: transactionAmount,
@@ -88,6 +106,111 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _userTransactions.add(newTransaction);
     });
+  }
+
+  List<Widget> _buildLandscapeContent({
+    MediaQueryData mediaQuery,
+    AppBar appBar,
+    Widget transactionList,
+  }) {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Show Chart',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          Platform.isIOS
+              ? CupertinoSwitch(
+                  value: _showChart,
+                  activeColor: Theme.of(context).accentColor,
+                  onChanged: (value) {
+                    setState(() {
+                      _showChart = value;
+                    });
+                  },
+                )
+              : Switch(
+                  value: _showChart,
+                  onChanged: (value) {
+                    setState(() {
+                      _showChart = value;
+                    });
+                  },
+                ),
+        ],
+      ),
+      _showChart
+          ? Platform.isIOS
+              ? Container(
+                  height: (mediaQuery.size.height -
+                          appBar.preferredSize.height -
+                          mediaQuery.padding.top) *
+                      0.7,
+                  child: Chart(
+                    recentTransactions: _recentTransactions,
+                  ),
+                )
+              : Container(
+                  height: (mediaQuery.size.height -
+                          appBar.preferredSize.height -
+                          mediaQuery.padding.top) *
+                      0.62,
+                  child: Chart(
+                    recentTransactions: _recentTransactions,
+                  ),
+                )
+          : transactionList,
+    ];
+  }
+
+  List<Widget> _buildPortraitContent({
+    MediaQueryData mediaQuery,
+    PreferredSizeWidget appBar,
+    Widget transactionList,
+  }) {
+    return [
+      Container(
+        height: (mediaQuery.size.height -
+                appBar.preferredSize.height -
+                mediaQuery.padding.top) *
+            0.35,
+        child: Chart(recentTransactions: _recentTransactions),
+      ),
+      transactionList,
+    ];
+  }
+
+  PreferredSizeWidget _buildAdaptiveAppBar() {
+    return Platform.isIOS
+        ? CupertinoNavigationBar(
+            automaticallyImplyLeading: true,
+            middle: Text(
+              'Expense Forecast',
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () => _startAddNewTransaction(context),
+                  child: Icon(
+                    CupertinoIcons.add,
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
+          )
+        : AppBar(
+            title: Text('Expense Forecast'),
+            actions: <Widget>[
+              IconButton(
+                onPressed: () => _startAddNewTransaction(context),
+                icon: Icon(Icons.add),
+              ),
+            ],
+          );
   }
 
   void _startAddNewTransaction(BuildContext context) {
@@ -111,36 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     final bool isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final PreferredSizeWidget appBar = Platform.isIOS
-        ? CupertinoNavigationBar(
-            automaticallyImplyLeading: true,
-            middle: Text(
-              'Expense Forecast',
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () => _startAddNewTransaction(context),
-                  child: Icon(
-                    CupertinoIcons.add,
-                    size: 24,
-                    // color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            // backgroundColor: Theme.of(context).primaryColor,
-          )
-        : AppBar(
-            title: Text('Expense Forecast'),
-            actions: <Widget>[
-              IconButton(
-                onPressed: () => _startAddNewTransaction(context),
-                icon: Icon(Icons.add),
-              ),
-            ],
-          );
+    final PreferredSizeWidget appBar = _buildAdaptiveAppBar();
     final Widget transactionList = Container(
       height: isLandscape
           ? (mediaQuery.size.height -
@@ -163,65 +257,17 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (isLandscape)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'Show Chart',
-                    style: Theme.of(context).textTheme.bodyText1,
-                  ),
-                  Platform.isIOS
-                      ? CupertinoSwitch(
-                          value: _showChart,
-                          activeColor: Theme.of(context).accentColor,
-                          onChanged: (value) {
-                            setState(() {
-                              _showChart = value;
-                            });
-                          },
-                        )
-                      : Switch(
-                          value: _showChart,
-                          onChanged: (value) {
-                            setState(() {
-                              _showChart = value;
-                            });
-                          },
-                        ),
-                ],
+              ..._buildLandscapeContent(
+                mediaQuery: mediaQuery,
+                appBar: appBar,
+                transactionList: transactionList,
               ),
-            if (!isLandscape) ...[
-              Container(
-                height: (mediaQuery.size.height -
-                        appBar.preferredSize.height -
-                        mediaQuery.padding.top) *
-                    0.35,
-                child: Chart(recentTransactions: _recentTransactions),
+            if (!isLandscape)
+              ..._buildPortraitContent(
+                mediaQuery: mediaQuery,
+                appBar: appBar,
+                transactionList: transactionList,
               ),
-              transactionList,
-            ],
-            if (isLandscape)
-              _showChart
-                  ? Platform.isIOS
-                      ? Container(
-                          height: (mediaQuery.size.height -
-                                  appBar.preferredSize.height -
-                                  mediaQuery.padding.top) *
-                              0.7,
-                          child: Chart(
-                            recentTransactions: _recentTransactions,
-                          ),
-                        )
-                      : Container(
-                          height: (mediaQuery.size.height -
-                                  appBar.preferredSize.height -
-                                  mediaQuery.padding.top) *
-                              0.62,
-                          child: Chart(
-                            recentTransactions: _recentTransactions,
-                          ),
-                        )
-                  : transactionList,
           ],
         ),
       ),
@@ -241,7 +287,7 @@ class _MyHomePageState extends State<MyHomePage> {
             floatingActionButton: Platform.isIOS
                 ? Container()
                 : FloatingActionButton(
-                    child: Icon(
+                    child: const Icon(
                       Icons.add,
                     ),
                     onPressed: () => _startAddNewTransaction(context),
