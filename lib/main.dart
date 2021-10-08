@@ -251,25 +251,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       ),
     );
 
-    final Widget pageBody = SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            if (isLandscape)
-              ..._buildLandscapeContent(
-                mediaQuery: mediaQuery,
-                appBar: appBar,
-                transactionList: transactionList,
-              ),
-            if (!isLandscape)
-              ..._buildPortraitContent(
-                mediaQuery: mediaQuery,
-                appBar: appBar,
-                transactionList: transactionList,
-              ),
-          ],
-        ),
+    final Widget pageBody = SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (isLandscape)
+            ..._buildLandscapeContent(
+              mediaQuery: mediaQuery,
+              appBar: appBar,
+              transactionList: transactionList,
+            ),
+          if (!isLandscape)
+            ..._buildPortraitContent(
+              mediaQuery: mediaQuery,
+              appBar: appBar,
+              transactionList: transactionList,
+            ),
+        ],
       ),
     );
 
